@@ -39,7 +39,7 @@ storage/
 1. Start PostgreSQL:
    `docker compose -f database/docker-compose.yml up -d`
 2. Create and activate the backend environment:
-   `cd backend && python -m venv .venv && source .venv/bin/activate`
+   `cd backend && python3 -m venv .venv && source .venv/bin/activate`
 3. Install backend dependencies:
    `pip install -r requirements.txt`
 4. Run the API:

@@ -1,23 +1,45 @@
 from datetime import datetime, timedelta, timezone
+import hashlib
+import hmac
+import secrets
 from typing import Any
 
 from jose import jwt
-from passlib.context import CryptContext
 
 from app.core.config import get_settings
 
 
-password_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+HASH_NAME = "sha256"
+HASH_ITERATIONS = 260_000
 
 
 def hash_password(password: str) -> str:
     """Hash a plain password before storing it in the database."""
 
-    return password_context.hash(password)
+    salt = secrets.token_hex(16)
+    digest = hashlib.pbkdf2_hmac(
+        HASH_NAME,
+        password.encode("utf-8"),
+        salt.encode("utf-8"),
+        HASH_ITERATIONS,
+    ).hex()
+    return f"pbkdf2_{HASH_NAME}${HASH_ITERATIONS}${salt}${digest}"
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return password_context.verify(plain_password, hashed_password)
+    try:
+        algorithm, iterations, salt, stored_digest = hashed_password.split("$", 3)
+        if algorithm != f"pbkdf2_{HASH_NAME}":
+            return False
+        digest = hashlib.pbkdf2_hmac(
+            HASH_NAME,
+            plain_password.encode("utf-8"),
+            salt.encode("utf-8"),
+            int(iterations),
+        ).hex()
+    except ValueError:
+        return False
+    return hmac.compare_digest(digest, stored_digest)
 
 
 def create_access_token(subject: str, expires_delta: timedelta | None = None) -> str:
