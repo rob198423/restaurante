@@ -1,0 +1,13 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+psycopg[binary]
+pydantic-settings
+email-validator
+python-multipart
+python-jose[cryptography]
+librosa
+soundfile
+numpy
+httpx
+pytest
