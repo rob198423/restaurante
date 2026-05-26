@@ -1,0 +1,10 @@
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/tone_bg" />
+    <item android:gravity="center">
+        <vector android:width="144dp" android:height="144dp" android:viewportWidth="144" android:viewportHeight="144">
+            <path android:fillColor="#7C4DFF" android:pathData="M72,8a64,64 0,1 0,0.1 0M72,20a52,52 0,1 1,-0.1 0" />
+            <path android:fillColor="#00E5FF" android:pathData="M42,78c18,-48 42,-48 60,0c-14,-12 -46,-12 -60,0z" />
+            <path android:fillColor="#38E28A" android:pathData="M66,42h12v60H66z" />
+        </vector>
+    </item>
+</layer-list>
