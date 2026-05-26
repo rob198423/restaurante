@@ -1,0 +1,37 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: tonemind
+      POSTGRES_USER: tonemind
+      POSTGRES_PASSWORD: tonemind
+    ports:
+      - "5432:5432"
+    volumes:
+      - tonemind_pg:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tonemind -d tonemind"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  backend:
+    build: ./backend
+    env_file:
+      - ./backend/.env.example
+    environment:
+      DATABASE_URL: postgresql+psycopg://tonemind:tonemind@db:5432/tonemind
+      UPLOAD_DIR: /app/storage/uploads
+      EXPORT_DIR: /app/storage/exports
+    ports:
+      - "8000:8000"
+    volumes:
+      - tonemind_storage:/app/storage
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  tonemind_pg:
+  tonemind_storage:
