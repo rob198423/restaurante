@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ouvido Perfeito BR | Treino Auditivo e Guitarra</title>
+    <meta
+      name="description"
+      content="Aplicativo em português para treino auditivo, transcrição de melodias, fraseado musical e técnicas de guitarra com áudio."
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <nav class="topbar" aria-label="Navegação principal">
+        <a class="brand" href="#inicio">Ouvido Perfeito BR</a>
+        <div class="nav-links">
+          <a href="#treino">Treino auditivo</a>
+          <a href="#tirar-musicas">Tirar músicas</a>
+          <a href="#guitarra">Guitarra</a>
+          <a href="#rotina">Rotina</a>
+        </div>
+      </nav>
+
+      <section id="inicio" class="hero-grid">
+        <div class="hero-copy">
+          <p class="eyebrow">Aplicativo completo em português</p>
+          <h1>Treine o ouvido, tire melodias e leve fraseado real para a guitarra.</h1>
+          <p>
+            Exercícios com áudio gerado no navegador para reconhecer intervalos, cantar graus,
+            escrever melodias curtas, entender fraseado e estudar padrões como pedal point,
+            sequências e aproximações cromáticas.
+          </p>
+          <div class="hero-actions">
+            <button class="primary-button" data-scroll="#treino">Começar treino</button>
+            <button class="ghost-button" id="audio-check">Ativar áudio</button>
+          </div>
+          <p class="audio-status" id="audio-status" role="status">
+            Toque em qualquer botão de áudio para iniciar o sintetizador.
+          </p>
+        </div>
+
+        <div class="studio-card" aria-label="Painel de estudo">
+          <div class="pulse-ring">
+            <span>440 Hz</span>
+          </div>
+          <div>
+            <h2>Modo de estudo</h2>
+            <p>Ouça, cante, toque, confira e repita em ciclos curtos.</p>
+          </div>
+          <ul>
+            <li>Centro tonal com drone</li>
+            <li>Ditado por graus da escala</li>
+            <li>Frases para improviso</li>
+            <li>Técnicas aplicadas na guitarra</li>
+          </ul>
+        </div>
+      </section>
+    </header>
+
+    <main>
+      <section class="section" id="treino">
+        <div class="section-heading">
+          <p class="eyebrow">Treino auditivo</p>
+          <h2>Exercícios iguais a um professor particular de ouvido</h2>
+          <p>
+            Cada módulo toca exemplos diferentes a cada rodada. Responda em português, confira o
+            resultado e use as dicas para corrigir a escuta.
+          </p>
+        </div>
+
+        <div class="practice-grid">
+          <article class="practice-card" id="interval-card">
+            <div class="card-title-row">
+              <div>
+                <p class="tag">Reconhecimento</p>
+                <h3>Intervalos melódicos</h3>
+              </div>
+              <span class="score-pill" id="interval-score">0/0</span>
+            </div>
+            <p>Ouça duas notas e identifique a distância. Comece cantando a primeira nota antes de responder.</p>
+            <div class="button-row">
+              <button class="primary-button" id="play-interval">Tocar intervalo</button>
+              <button class="ghost-button" id="repeat-interval">Repetir</button>
+            </div>
+            <div class="option-grid" id="interval-options" aria-label="Opções de intervalo"></div>
+            <p class="feedback" id="interval-feedback" role="status">Clique em tocar intervalo.</p>
+          </article>
+
+          <article class="practice-card" id="melody-card">
+            <div class="card-title-row">
+              <div>
+                <p class="tag">Transcrição</p>
+                <h3>Ditado melódico por graus</h3>
+              </div>
+              <span class="score-pill" id="melody-score">0/0</span>
+            </div>
+            <p>Escute uma melodia curta em dó maior e monte a resposta com graus da escala.</p>
+            <div class="button-row">
+              <button class="primary-button" id="play-melody">Nova melodia</button>
+              <button class="ghost-button" id="repeat-melody">Repetir</button>
+            </div>
+            <div class="degree-pad" id="degree-pad" aria-label="Graus da escala"></div>
+            <div class="answer-box">
+              <span>Resposta:</span>
+              <strong id="melody-answer">vazia</strong>
+            </div>
+            <div class="button-row">
+              <button class="ghost-button" id="clear-melody">Limpar</button>
+              <button class="primary-button" id="check-melody">Conferir</button>
+            </div>
+            <p class="feedback" id="melody-feedback" role="status">Clique em nova melodia.</p>
+          </article>
+
+          <article class="practice-card" id="phrase-card">
+            <div class="card-title-row">
+              <div>
+                <p class="tag">Fraseado</p>
+                <h3>Reconheça a intenção da frase</h3>
+              </div>
+              <span class="score-pill" id="phrase-score">0/0</span>
+            </div>
+            <p>Ouça uma frase e escolha a ideia musical: pergunta-resposta, sequência, pedal point ou aproximação.</p>
+            <div class="button-row">
+              <button class="primary-button" id="play-phrase">Tocar frase</button>
+              <button class="ghost-button" id="repeat-phrase">Repetir</button>
+            </div>
+            <div class="option-grid" id="phrase-options" aria-label="Opções de fraseado"></div>
+            <p class="feedback" id="phrase-feedback" role="status">Clique em tocar frase.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section split-section" id="tirar-musicas">
+        <div class="section-heading compact">
+          <p class="eyebrow">Tirar músicas</p>
+          <h2>Fluxo guiado para tirar melodias e fraseados</h2>
+          <p>
+            Use o painel como um roteiro: ache o centro tonal, cante graus, divida a frase e toque
+            no instrumento antes de escrever.
+          </p>
+        </div>
+
+        <div class="transcription-panel">
+          <div class="control-card">
+            <h3>Laboratório tonal</h3>
+            <label for="key-select">Centro tonal</label>
+            <select id="key-select">
+              <option value="261.63">Dó</option>
+              <option value="293.66">Ré</option>
+              <option value="329.63">Mi</option>
+              <option value="349.23">Fá</option>
+              <option value="392">Sol</option>
+              <option value="440">Lá</option>
+            </select>
+            <label for="tempo-range">Andamento: <span id="tempo-value">92</span> bpm</label>
+            <input id="tempo-range" type="range" min="60" max="140" value="92" />
+            <div class="button-row">
+              <button class="primary-button" id="play-drone">Tocar drone</button>
+              <button class="ghost-button" id="play-scale">Escala maior</button>
+            </div>
+            <p class="small-note">Dica: cante 1-2-3-5-3-2-1 antes de tentar copiar uma música real.</p>
+          </div>
+
+          <div class="steps-card">
+            <h3>Método em 6 passos</h3>
+            <ol class="steps-list">
+              <li><strong>Ouça sem tocar.</strong> Marque o pulso com o pé e perceba onde a frase respira.</li>
+              <li><strong>Encontre o repouso.</strong> Cante a nota que parece casa: ela vira o grau 1.</li>
+              <li><strong>Mapeie o contorno.</strong> Escreva se a melodia sobe, desce ou repete notas.</li>
+              <li><strong>Quebre em células.</strong> Trabalhe trechos de 2 a 4 notas, nunca a música inteira.</li>
+              <li><strong>Compare com graus.</strong> Toque a escala e descubra 1, 2, 3, 4, 5, 6 ou 7.</li>
+              <li><strong>Leve para a guitarra.</strong> Toque em duas regiões do braço e crie uma variação.</li>
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="guitarra">
+        <div class="section-heading">
+          <p class="eyebrow">Técnicas de guitarra</p>
+          <h2>Padrões para adicionar no improviso</h2>
+          <p>
+            Aprenda o conceito, ouça o padrão e pratique com palhetada alternada, ligados ou slides.
+          </p>
+        </div>
+
+        <div class="technique-grid" id="technique-grid"></div>
+      </section>
+
+      <section class="section routine-section" id="rotina">
+        <div class="routine-card">
+          <p class="eyebrow">Rotina sugerida</p>
+          <h2>Treino diário de 20 minutos</h2>
+          <div class="routine-grid">
+            <div>
+              <span>05 min</span>
+              <h3>Centro tonal</h3>
+              <p>Drone, escala maior e canto dos graus 1, 3, 5 e 7.</p>
+            </div>
+            <div>
+              <span>05 min</span>
+              <h3>Intervalos</h3>
+              <p>Faça 10 rodadas e cante a resposta antes de clicar.</p>
+            </div>
+            <div>
+              <span>05 min</span>
+              <h3>Ditado</h3>
+              <p>Transcreva melodias curtas por graus e toque na guitarra.</p>
+            </div>
+            <div>
+              <span>05 min</span>
+              <h3>Improviso</h3>
+              <p>Escolha uma técnica e crie duas frases próprias.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>Feito para estudar ouvido, fraseado e guitarra em português.</p>
+    </footer>
+
+    <script src="app.js" defer></script>
+  </body>
+</html>
