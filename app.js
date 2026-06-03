@@ -1,504 +1,492 @@
-const NOTE_NAMES = ["Dó", "Ré", "Mi", "Fá", "Sol", "Lá", "Si"];
-const MAJOR_SCALE = [0, 2, 4, 5, 7, 9, 11, 12];
-const INTERVALS = [
-  { name: "2ª menor", semitones: 1, tip: "Soa apertada e tensa, como notas vizinhas." },
-  { name: "2ª maior", semitones: 2, tip: "Pense no começo de uma escala maior: dó-ré." },
-  { name: "3ª menor", semitones: 3, tip: "Cor triste, muito comum em blues e rock." },
-  { name: "3ª maior", semitones: 4, tip: "Cor aberta e estável, como o arpejo maior." },
-  { name: "4ª justa", semitones: 5, tip: "Salto forte, com sensação de chamada." },
-  { name: "5ª justa", semitones: 7, tip: "Som amplo e estável, base dos power chords." },
-  { name: "6ª maior", semitones: 9, tip: "Salto cantável e melodioso." },
-  { name: "8ª justa", semitones: 12, tip: "Mesma nota em outra altura." },
-];
+const STORAGE_KEY = "gideao-ai-memories";
 
-const PHRASES = [
+const AUTOMATIONS = [
   {
-    name: "Pergunta e resposta",
-    description: "Duas ideias: a primeira fica suspensa e a segunda resolve no grau 1.",
-    degrees: [1, 2, 3, 5, 4, 3, 2, 1],
-    rhythm: [0.35, 0.35, 0.35, 0.7, 0.35, 0.35, 0.35, 0.9],
+    title: "Abrir app favorito",
+    description: "Simula abrir WhatsApp, navegador ou bloco de notas pelo comando do usuário.",
+    safe: true,
+    result: "App favorito localizado. No Android, isso usaria Intent/launcher com confirmação visual.",
   },
   {
-    name: "Sequência melódica",
-    description: "O mesmo desenho sobe por partes da escala.",
-    degrees: [1, 2, 3, 2, 3, 4, 5, 4, 5, 6],
-    rhythm: [0.28, 0.28, 0.44, 0.28, 0.28, 0.44, 0.28, 0.28, 0.44, 0.7],
+    title: "Organizar arquivos",
+    description: "Agrupa downloads por imagens, PDFs, documentos e instaladores.",
+    safe: true,
+    result: "Arquivos classificados em categorias. Antes de mover ou excluir algo importante, eu pediria confirmação.",
   },
   {
-    name: "Pedal point",
-    description: "Uma nota fixa retorna entre notas móveis para criar tensão e energia.",
-    degrees: [1, 5, 1, 6, 1, 5, 1, 4, 1],
-    rhythm: [0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.6],
+    title: "Preencher formulário",
+    description: "Detecta nome, email, telefone, CPF e endereço.",
+    safe: false,
+    result: "Campos detectados. Dados sensíveis só seguem depois da sua confirmação explícita.",
   },
   {
-    name: "Aproximação cromática",
-    description: "Uma nota alvo é cercada por vizinhos cromáticos antes de resolver.",
-    semitones: [0, 4, 3, 5, 4, 7, 6, 8, 7],
-    rhythm: [0.3, 0.3, 0.2, 0.2, 0.48, 0.3, 0.2, 0.2, 0.7],
+    title: "Enviar senha",
+    description: "Exemplo bloqueado por segurança.",
+    safe: false,
+    blocked: true,
+    result: "Bloqueado: nunca envio senha automaticamente sem confirmação explícita.",
   },
 ];
 
-const TECHNIQUES = [
-  {
-    title: "Pedal point",
-    summary: "Mantenha uma nota pedal e alterne com notas da escala para criar tensão no improviso.",
-    degrees: [1, 5, 1, 6, 1, 7, 1, 8],
-    tab: `e|--8--12--8--13--8--15--8--17--|
-B|----------------------------------|
-G|----------------------------------|`,
-    practice: "Toque lento, acentue sempre a nota pedal e depois mude o pedal para outro grau.",
-  },
-  {
-    title: "Padrão 1-2-3",
-    summary: "Sequência simples para conectar regiões da escala sem soar como exercício mecânico.",
-    degrees: [1, 2, 3, 2, 3, 4, 3, 4, 5, 4, 5, 6],
-    tab: `e|-------------------------5--7--8--|
-B|-------------5--6--8--------------|
-G|--4--5--7-------------------------|`,
-    practice: "Suba em grupos de três e termine cada grupo em uma nota do acorde.",
-  },
-  {
-    title: "Aproximação cromática",
-    summary: "Cerque a nota alvo por meio tom abaixo ou acima para soar mais jazz/blues.",
-    semitones: [0, 4, 3, 5, 4, 7, 6, 8, 7, 12],
-    tab: `e|------------------7--8--|
-B|---------7--8--9--------|
-G|--5--6------------------|`,
-    practice: "Escolha uma nota alvo do acorde e resolva nela com convicção rítmica.",
-  },
-  {
-    title: "Motivo rítmico",
-    summary: "Repita a mesma célula rítmica em notas diferentes para criar fraseado memorável.",
-    degrees: [1, 3, 2, 1, 4, 6, 5, 4, 5, 7, 6, 5],
-    rhythm: [0.2, 0.2, 0.45, 0.55, 0.2, 0.2, 0.45, 0.55, 0.2, 0.2, 0.45, 0.8],
-    tab: `e|-------------------5--7--5--|
-B|--------5--6--5-------------|
-G|--5--7----------------------|`,
-    practice: "Mantenha a célula rítmica e varie apenas as notas.",
-  },
-];
-
-let audioContext;
-let activeDrone;
+const DEFAULT_PROFILE = {
+  name: "Usuário Gideão",
+  email: "usuario@email.com",
+  phone: "(11) 90000-0000",
+  cpf: "000.000.000-00",
+  address: "Rua Exemplo, 123 - Centro",
+};
 
 const state = {
-  interval: null,
-  melody: [],
-  melodyAnswer: [],
-  phrase: null,
-  scores: {
-    interval: { right: 0, total: 0 },
-    melody: { right: 0, total: 0 },
-    phrase: { right: 0, total: 0 },
-  },
+  memories: [],
+  recognition: null,
+  listening: false,
 };
 
 const $ = (selector) => document.querySelector(selector);
+const $$ = (selector) => [...document.querySelectorAll(selector)];
 
-function ensureAudio() {
-  if (!audioContext) {
-    audioContext = new AudioContext();
+function loadMemories() {
+  try {
+    state.memories = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+  } catch {
+    state.memories = [];
+  }
+}
+
+function persistMemories() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state.memories));
+}
+
+function speak(text) {
+  if (!("speechSynthesis" in window)) {
+    return;
   }
 
-  if (audioContext.state === "suspended") {
-    audioContext.resume();
+  speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = "pt-BR";
+  utterance.rate = 1;
+  utterance.pitch = 1;
+  speechSynthesis.speak(utterance);
+}
+
+function setResponse(text, intent = "Resposta") {
+  $("#assistant-response").textContent = text;
+  $("#intent-pill").textContent = intent;
+  addLog(intent, text);
+  speak(text);
+}
+
+function addLog(label, text) {
+  const item = document.createElement("div");
+  item.className = "log-item";
+  item.innerHTML = `<strong>${label}</strong><span>${text}</span>`;
+  $("#conversation-log").prepend(item);
+}
+
+function normalize(text) {
+  return text
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+function extractMemory(command) {
+  const patterns = ["lembre que", "memorize que", "guarde que", "salve que"];
+  const normalized = normalize(command);
+  const pattern = patterns.find((item) => normalized.includes(item));
+
+  if (!pattern) {
+    return "";
   }
 
-  $("#audio-status").textContent = "Áudio ativo. Use fones para perceber melhor os detalhes.";
-  return audioContext;
+  const index = normalized.indexOf(pattern) + pattern.length;
+  return command.slice(index).trim().replace(/^[,.:;-]+/, "").trim();
 }
 
-function frequencyFromSemitone(baseFrequency, semitone) {
-  return baseFrequency * 2 ** (semitone / 12);
+function detectIntent(command) {
+  const normalized = normalize(command);
+
+  if (["senha", "transferencia", "compra", "excluir arquivo", "apagar arquivo"].some((word) => normalized.includes(word))) {
+    return "seguranca";
+  }
+
+  if (["lembre", "memorize", "guarde", "salve"].some((word) => normalized.includes(word))) {
+    return "memoria";
+  }
+
+  if (["estudo", "concurso", "cronograma", "simulado", "resumo", "questao"].some((word) => normalized.includes(word))) {
+    return "estudos";
+  }
+
+  if (["pesquise", "pesquisar", "compare", "gratuito", "custo-beneficio"].some((word) => normalized.includes(word))) {
+    return "pesquisa";
+  }
+
+  if (["preencher", "cadastro", "cpf", "email", "telefone", "formulario"].some((word) => normalized.includes(word))) {
+    return "autofill";
+  }
+
+  if (["abrir", "organizar", "copiar", "automatizar", "app"].some((word) => normalized.includes(word))) {
+    return "automacao";
+  }
+
+  return "geral";
 }
 
-function getSelectedRoot() {
-  return Number($("#key-select").value);
+function runCommand() {
+  const command = $("#command-input").value.trim();
+  if (!command) {
+    setResponse("Mande um comando primeiro. Pode ser informal, do jeito que você falaria comigo.", "Aguardando");
+    return;
+  }
+
+  addLog("Você", command);
+  const intent = detectIntent(command);
+
+  if (intent === "seguranca") {
+    requestConfirmation(
+      "Ação sensível detectada",
+      "Transferências, compras, exclusão de arquivos importantes e envio de senhas exigem confirmação explícita. Deseja apenas registrar essa intenção como tarefa pendente?",
+    ).then((confirmed) => {
+      const response = confirmed
+        ? "Registrado como tarefa pendente. Não executei a ação sensível."
+        : "Perfeito. A ação foi bloqueada e nada foi executado.";
+      setResponse(response, "Segurança");
+    });
+    return;
+  }
+
+  if (intent === "memoria") {
+    const memory = extractMemory(command) || command;
+    saveMemory("preferencias", memory, true);
+    setResponse(`Memória salva: ${memory}. Vou usar isso para personalizar respostas futuras.`, "Memória");
+    return;
+  }
+
+  if (intent === "estudos") {
+    const topic = command.replace(/gideão|gideao|monte|crie|um|uma|cronograma|plano|de|estudos/gi, "").trim();
+    if (topic.length > 6) {
+      $("#study-topic").value = topic;
+    }
+    buildStudyPlan();
+    setResponse("Montei um cronograma adaptado com explicação, prática, simulado curto e revisão ativa.", "Estudos");
+    document.querySelector("#estudos").scrollIntoView({ behavior: "smooth" });
+    return;
+  }
+
+  if (intent === "pesquisa") {
+    $("#research-topic").value = command.replace(/pesquise|pesquisar|compare/gi, "").trim() || $("#research-topic").value;
+    runResearch();
+    setResponse("Comparei opções começando pelas gratuitas e depois listei uma alternativa custo-benefício.", "Pesquisa");
+    document.querySelector("#seguranca").scrollIntoView({ behavior: "smooth" });
+    return;
+  }
+
+  if (intent === "autofill") {
+    detectFields();
+    setResponse("Detectei campos de cadastro. Nome, email, telefone e endereço podem ser sugeridos; CPF exige confirmação antes de envio.", "Autofill");
+    document.querySelector("#automacao").scrollIntoView({ behavior: "smooth" });
+    return;
+  }
+
+  if (intent === "automacao") {
+    setResponse("Posso abrir apps, organizar arquivos, ler a tela e repetir tarefas. Para ações destrutivas, eu paro e peço confirmação.", "Automação");
+    document.querySelector("#automacao").scrollIntoView({ behavior: "smooth" });
+    return;
+  }
+
+  const memoryHint = state.memories[0] ? ` Lembro também que ${state.memories[0].value}.` : "";
+  setResponse(`Entendi. Vou ser objetivo: divida isso em uma próxima ação pequena, execute agora e me peça para acompanhar.${memoryHint}`, "Geral");
 }
 
-function getTempoSeconds(multiplier = 1) {
-  return (60 / Number($("#tempo-range").value)) * multiplier;
+function saveMemory(type, value, important) {
+  if (!value.trim()) {
+    return;
+  }
+
+  state.memories.unshift({
+    id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+    type,
+    value: value.trim(),
+    important,
+    createdAt: new Date().toLocaleString("pt-BR"),
+  });
+  persistMemories();
+  renderMemories();
 }
 
-function playTone(frequency, startTime, duration, options = {}) {
-  const context = ensureAudio();
-  const oscillator = context.createOscillator();
-  const gain = context.createGain();
-  const filter = context.createBiquadFilter();
+function renderMemories() {
+  const container = $("#memory-list");
+  container.innerHTML = "";
+  $("#memory-count").textContent = `${state.memories.length} memória${state.memories.length === 1 ? "" : "s"}`;
 
-  oscillator.type = options.type || "triangle";
-  oscillator.frequency.setValueAtTime(frequency, startTime);
-  filter.type = "lowpass";
-  filter.frequency.setValueAtTime(options.filter || 1400, startTime);
+  if (!state.memories.length) {
+    container.innerHTML = `<p class="empty-state">Nenhuma memória salva ainda. Adicione preferências ou use um comando começando com "lembre que".</p>`;
+    return;
+  }
 
-  gain.gain.setValueAtTime(0.0001, startTime);
-  gain.gain.exponentialRampToValueAtTime(options.volume || 0.22, startTime + 0.025);
-  gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+  state.memories.forEach((memory) => {
+    const item = document.createElement("article");
+    item.className = "memory-item";
+    item.innerHTML = `
+      <div>
+        <span>${memory.type}</span>
+        <p>${memory.value}</p>
+        <small>${memory.important ? "Importante" : "Normal"} • ${memory.createdAt}</small>
+      </div>
+    `;
 
-  oscillator.connect(filter);
-  filter.connect(gain);
-  gain.connect(context.destination);
-
-  oscillator.start(startTime);
-  oscillator.stop(startTime + duration + 0.03);
+    const removeButton = document.createElement("button");
+    removeButton.type = "button";
+    removeButton.className = "ghost-button small";
+    removeButton.textContent = "Remover";
+    removeButton.addEventListener("click", () => removeMemory(memory.id));
+    item.append(removeButton);
+    container.append(item);
+  });
 }
 
-function playSequence(items, options = {}) {
-  const context = ensureAudio();
-  const root = options.root || getSelectedRoot();
-  let time = context.currentTime + 0.05;
-  const beat = getTempoSeconds();
+async function removeMemory(id) {
+  const memory = state.memories.find((item) => item.id === id);
+  if (!memory) {
+    return;
+  }
 
-  items.forEach((item, index) => {
-    const semitone = item.semitone ?? MAJOR_SCALE[item.degree - 1] ?? 0;
-    const duration = item.duration ?? beat * 0.72;
-    const pause = item.pause ?? beat * 0.08;
-    const frequency = frequencyFromSemitone(root, semitone + (item.octave || 0) * 12);
-    playTone(frequency, time, duration, { volume: item.volume || options.volume, type: options.type });
-    time += duration + pause;
+  if (memory.important) {
+    const confirmed = await requestConfirmation("Apagar memória importante?", `"${memory.value}" parece relevante. Confirme para remover.`);
+    if (!confirmed) {
+      setResponse("Memória preservada. Não apaguei nada.", "Memória");
+      return;
+    }
+  }
 
-    if (options.metronome && index % 2 === 0) {
-      playTone(frequencyFromSemitone(root, -12), time - duration - pause, 0.04, {
-        volume: 0.08,
-        type: "square",
-        filter: 800,
-      });
+  state.memories = state.memories.filter((item) => item.id !== id);
+  persistMemories();
+  renderMemories();
+  setResponse("Memória removida com segurança.", "Memória");
+}
+
+function buildStudyPlan() {
+  const topic = $("#study-topic").value.trim() || "conteúdo principal";
+  const level = $("#study-level").value;
+  const minutes = Number($("#study-minutes").value);
+  const blocks = [
+    { pct: 0.18, title: "Aquecimento", text: `Releia conceitos base de ${topic} e anote 3 dúvidas.` },
+    { pct: 0.28, title: "Aula guiada", text: `Estude passo a passo no nível ${level}, com exemplos resolvidos.` },
+    { pct: 0.3, title: "Questões", text: "Resolva questões curtas, marque erros e explique o raciocínio em voz alta." },
+    { pct: 0.14, title: "Resumo ativo", text: "Crie um resumo de 5 linhas sem copiar material." },
+    { pct: 0.1, title: "Revisão", text: "Agende revisão para amanhã e transforme erros em cartões." },
+  ];
+
+  $("#study-plan").innerHTML = blocks
+    .map((block) => {
+      const blockMinutes = Math.max(3, Math.round(minutes * block.pct));
+      return `<li><strong>${blockMinutes} min • ${block.title}</strong><span>${block.text}</span></li>`;
+    })
+    .join("");
+}
+
+function renderAutomations() {
+  const container = $("#automation-actions");
+  container.innerHTML = "";
+
+  AUTOMATIONS.forEach((automation) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.innerHTML = `<strong>${automation.title}</strong><span>${automation.description}</span>`;
+    button.addEventListener("click", () => runAutomation(automation));
+    container.append(button);
+  });
+}
+
+async function runAutomation(automation) {
+  if (!automation.safe) {
+    const confirmed = await requestConfirmation("Confirmar automação sensível", `${automation.description} Confirma que deseja simular essa etapa?`);
+    if (!confirmed) {
+      $("#automation-feedback").textContent = "Automação cancelada. Nenhum dado sensível foi enviado.";
+      $("#automation-feedback").className = "feedback success";
+      return;
+    }
+  }
+
+  $("#automation-feedback").textContent = automation.result;
+  $("#automation-feedback").className = automation.blocked ? "feedback error" : "feedback success";
+}
+
+async function detectFields() {
+  const form = $("#autofill-form");
+  form.elements.name.value = DEFAULT_PROFILE.name;
+  form.elements.email.value = DEFAULT_PROFILE.email;
+  form.elements.phone.value = DEFAULT_PROFILE.phone;
+  form.elements.address.value = DEFAULT_PROFILE.address;
+
+  const confirmed = await requestConfirmation("Preencher CPF?", "CPF é dado sensível. Confirme para inserir no campo de demonstração.");
+  form.elements.cpf.value = confirmed ? DEFAULT_PROFILE.cpf : "";
+  $("#autofill-feedback").textContent = confirmed
+    ? "Campos preenchidos com CPF confirmado. Antes de enviar, vou pedir confirmação novamente."
+    : "Campos comuns preenchidos. CPF ficou vazio porque não houve confirmação.";
+  $("#autofill-feedback").className = "feedback success";
+}
+
+async function submitAutofill(event) {
+  event.preventDefault();
+  const confirmed = await requestConfirmation("Enviar cadastro de exemplo?", "Este formulário contém dados pessoais. Confirme explicitamente para simular o envio.");
+  $("#autofill-feedback").textContent = confirmed
+    ? "Envio simulado com confirmação explícita. Nenhuma informação saiu do navegador."
+    : "Envio cancelado. Os dados não foram enviados.";
+  $("#autofill-feedback").className = confirmed ? "feedback success" : "feedback error";
+}
+
+function analyzeScreen() {
+  const findings = [
+    "Botão principal encontrado: Entrar.",
+    "Botão alternativo encontrado: Continuar com Google.",
+    "Campo sensível encontrado: CPF. Requer confirmação antes de preencher.",
+    "Sugestão: conferir se o site é confiável antes de inserir dados pessoais.",
+  ];
+
+  $("#screen-findings").innerHTML = findings.map((finding) => `<li>${finding}</li>`).join("");
+  setResponse("Analisei a tela simulada e identifiquei botões, opção de login e campo sensível de CPF.", "Visão de tela");
+}
+
+function runResearch() {
+  const topic = $("#research-topic").value.trim() || "solução solicitada";
+  const results = [
+    {
+      title: "Opção gratuita",
+      badge: "Prioridade",
+      text: `Comece com ferramentas grátis para ${topic}. Vantagem: custo zero. Desvantagem: pode exigir configuração manual.`,
+    },
+    {
+      title: "Opção custo-benefício",
+      badge: "Equilíbrio",
+      text: "Escolha um app pago barato só se economizar tempo real ou integrar melhor com Android e PC.",
+    },
+    {
+      title: "Critério do Gideão",
+      badge: "Decisão",
+      text: "Compare privacidade, exportação de dados, notificações, uso offline e suporte a automação.",
+    },
+  ];
+
+  $("#research-results").innerHTML = results
+    .map(
+      (result) => `
+        <div class="comparison-item">
+          <span>${result.badge}</span>
+          <strong>${result.title}</strong>
+          <p>${result.text}</p>
+        </div>
+      `,
+    )
+    .join("");
+}
+
+function requestConfirmation(title, message) {
+  const dialog = $("#confirm-dialog");
+  $("#confirm-title").textContent = title;
+  $("#confirm-message").textContent = message;
+
+  if (!dialog.showModal) {
+    return Promise.resolve(window.confirm(`${title}\n\n${message}`));
+  }
+
+  dialog.showModal();
+  return new Promise((resolve) => {
+    const handleClose = () => {
+      dialog.removeEventListener("close", handleClose);
+      resolve(dialog.returnValue === "confirm");
+    };
+    dialog.addEventListener("close", handleClose);
+  });
+}
+
+function setupSpeechRecognition() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    $("#voice-toggle").disabled = true;
+    $("#voice-toggle").textContent = "Voz indisponível";
+    $("#voice-status").textContent = "Seu navegador não expôs reconhecimento de voz. Use comandos por texto.";
+    return;
+  }
+
+  state.recognition = new SpeechRecognition();
+  state.recognition.lang = "pt-BR";
+  state.recognition.continuous = true;
+  state.recognition.interimResults = false;
+
+  state.recognition.addEventListener("result", (event) => {
+    const transcript = event.results[event.results.length - 1][0].transcript;
+    $("#command-input").value = transcript;
+    $("#voice-status").textContent = `Ouvi: "${transcript}"`;
+    runCommand();
+  });
+
+  state.recognition.addEventListener("end", () => {
+    if (state.listening) {
+      state.recognition.start();
     }
   });
 }
 
-function setFeedback(element, message, kind = "") {
-  element.textContent = message;
-  element.classList.remove("success", "error");
-  if (kind) {
-    element.classList.add(kind);
-  }
-}
-
-function randomItem(items) {
-  return items[Math.floor(Math.random() * items.length)];
-}
-
-function shuffle(items) {
-  return [...items].sort(() => Math.random() - 0.5);
-}
-
-function updateScore(kind) {
-  const score = state.scores[kind];
-  $(`#${kind}-score`).textContent = `${score.right}/${score.total}`;
-}
-
-function renderIntervalOptions() {
-  const container = $("#interval-options");
-  container.innerHTML = "";
-  INTERVALS.forEach((interval) => {
-    const button = document.createElement("button");
-    button.className = "option-button";
-    button.type = "button";
-    button.textContent = interval.name;
-    button.addEventListener("click", () => checkInterval(interval, button));
-    container.append(button);
-  });
-}
-
-function newInterval() {
-  const rootSemitone = randomItem([0, 2, 4, 5, 7]);
-  state.interval = {
-    root: frequencyFromSemitone(220, rootSemitone),
-    interval: randomItem(INTERVALS),
-  };
-  playCurrentInterval();
-  setFeedback($("#interval-feedback"), "Ouça, cante a segunda nota e escolha o intervalo.");
-  document.querySelectorAll("#interval-options .option-button").forEach((button) => {
-    button.classList.remove("correct", "wrong");
-  });
-}
-
-function playCurrentInterval() {
-  if (!state.interval) {
-    newInterval();
+function toggleListening() {
+  if (!state.recognition) {
     return;
   }
 
-  const { root, interval } = state.interval;
-  const context = ensureAudio();
-  playTone(root, context.currentTime + 0.05, 0.55);
-  playTone(frequencyFromSemitone(root, interval.semitones), context.currentTime + 0.78, 0.7);
-}
-
-function checkInterval(selected, button) {
-  if (!state.interval) {
-    setFeedback($("#interval-feedback"), "Toque um intervalo antes de responder.", "error");
-    return;
-  }
-
-  const expected = state.interval.interval;
-  const score = state.scores.interval;
-  score.total += 1;
-
-  if (selected.name === expected.name) {
-    score.right += 1;
-    button.classList.add("correct");
-    setFeedback($("#interval-feedback"), `Correto: ${expected.name}. ${expected.tip}`, "success");
+  state.listening = !state.listening;
+  if (state.listening) {
+    state.recognition.start();
+    $("#voice-toggle").textContent = "Parar escuta";
+    $("#voice-status").textContent = "Escutando em português do Brasil.";
   } else {
-    button.classList.add("wrong");
-    setFeedback($("#interval-feedback"), `Ainda não: era ${expected.name}. ${expected.tip}`, "error");
+    state.recognition.stop();
+    $("#voice-toggle").textContent = "Ativar escuta";
+    $("#voice-status").textContent = "Escuta pausada.";
   }
-
-  updateScore("interval");
-}
-
-function generateMelody() {
-  const start = randomItem([1, 3, 5]);
-  const melody = [start];
-  while (melody.length < 5) {
-    const last = melody[melody.length - 1];
-    const step = randomItem([-2, -1, 1, 2]);
-    const next = Math.min(7, Math.max(1, last + step));
-    melody.push(next);
-  }
-  return melody;
-}
-
-function playMelody(melody = state.melody) {
-  if (!melody.length) {
-    newMelody();
-    return;
-  }
-
-  const items = melody.map((degree, index) => ({
-    degree,
-    duration: getTempoSeconds(index === melody.length - 1 ? 1.15 : 0.62),
-  }));
-  playSequence(items, { metronome: true });
-}
-
-function newMelody() {
-  state.melody = generateMelody();
-  state.melodyAnswer = [];
-  renderMelodyAnswer();
-  playMelody();
-  setFeedback($("#melody-feedback"), "Monte a sequência usando graus 1 a 7.");
-}
-
-function renderDegreePad() {
-  const container = $("#degree-pad");
-  container.innerHTML = "";
-  NOTE_NAMES.forEach((note, index) => {
-    const degree = index + 1;
-    const button = document.createElement("button");
-    button.className = "degree-button";
-    button.type = "button";
-    button.textContent = `${degree} - ${note}`;
-    button.addEventListener("click", () => {
-      state.melodyAnswer.push(degree);
-      renderMelodyAnswer();
-    });
-    container.append(button);
-  });
-}
-
-function renderMelodyAnswer() {
-  $("#melody-answer").textContent = state.melodyAnswer.length
-    ? state.melodyAnswer.join(" - ")
-    : "vazia";
-}
-
-function clearMelodyAnswer() {
-  state.melodyAnswer = [];
-  renderMelodyAnswer();
-  setFeedback($("#melody-feedback"), "Resposta limpa. Ouça novamente se precisar.");
-}
-
-function checkMelody() {
-  if (!state.melody.length) {
-    setFeedback($("#melody-feedback"), "Gere uma melodia antes de conferir.", "error");
-    return;
-  }
-
-  const expected = state.melody.join("-");
-  const answer = state.melodyAnswer.join("-");
-  const score = state.scores.melody;
-  score.total += 1;
-
-  if (answer === expected) {
-    score.right += 1;
-    setFeedback($("#melody-feedback"), `Correto: ${state.melody.join(" - ")}. Agora toque na guitarra.`, "success");
-  } else {
-    setFeedback($("#melody-feedback"), `Quase. A resposta era ${state.melody.join(" - ")}. Cante devagar e repita.`, "error");
-  }
-
-  updateScore("melody");
-}
-
-function phraseToItems(phrase) {
-  if (phrase.semitones) {
-    return phrase.semitones.map((semitone, index) => ({
-      semitone,
-      duration: getTempoSeconds(phrase.rhythm[index]),
-    }));
-  }
-
-  return phrase.degrees.map((degree, index) => ({
-    degree,
-    duration: getTempoSeconds(phrase.rhythm[index]),
-  }));
-}
-
-function playPhrase(phrase = state.phrase) {
-  if (!phrase) {
-    newPhrase();
-    return;
-  }
-
-  playSequence(phraseToItems(phrase), { root: frequencyFromSemitone(getSelectedRoot(), 12), type: "sawtooth", volume: 0.16 });
-}
-
-function newPhrase() {
-  state.phrase = randomItem(PHRASES);
-  playPhrase();
-  setFeedback($("#phrase-feedback"), "Escolha a intenção musical que você ouviu.");
-  document.querySelectorAll("#phrase-options .option-button").forEach((button) => {
-    button.classList.remove("correct", "wrong");
-  });
-}
-
-function renderPhraseOptions() {
-  const container = $("#phrase-options");
-  container.innerHTML = "";
-  shuffle(PHRASES).forEach((phrase) => {
-    const button = document.createElement("button");
-    button.className = "option-button";
-    button.type = "button";
-    button.textContent = phrase.name;
-    button.addEventListener("click", () => checkPhrase(phrase, button));
-    container.append(button);
-  });
-}
-
-function checkPhrase(selected, button) {
-  if (!state.phrase) {
-    setFeedback($("#phrase-feedback"), "Toque uma frase antes de responder.", "error");
-    return;
-  }
-
-  const score = state.scores.phrase;
-  score.total += 1;
-
-  if (selected.name === state.phrase.name) {
-    score.right += 1;
-    button.classList.add("correct");
-    setFeedback($("#phrase-feedback"), `Correto: ${state.phrase.description}`, "success");
-  } else {
-    button.classList.add("wrong");
-    setFeedback($("#phrase-feedback"), `Não foi dessa vez. Era ${state.phrase.name}: ${state.phrase.description}`, "error");
-  }
-
-  updateScore("phrase");
-}
-
-function playDrone() {
-  const context = ensureAudio();
-  if (activeDrone) {
-    activeDrone.oscillator.stop();
-    activeDrone = null;
-    $("#play-drone").textContent = "Tocar drone";
-    return;
-  }
-
-  const oscillator = context.createOscillator();
-  const gain = context.createGain();
-  oscillator.type = "sine";
-  oscillator.frequency.value = getSelectedRoot();
-  gain.gain.setValueAtTime(0.0001, context.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.12, context.currentTime + 0.2);
-  oscillator.connect(gain);
-  gain.connect(context.destination);
-  oscillator.start();
-  activeDrone = { oscillator, gain };
-  $("#play-drone").textContent = "Parar drone";
-}
-
-function playMajorScale() {
-  const degrees = [1, 2, 3, 4, 5, 6, 7, 8].map((degree) => ({
-    degree,
-    duration: getTempoSeconds(0.45),
-  }));
-  playSequence(degrees);
-}
-
-function renderTechniqueCards() {
-  const container = $("#technique-grid");
-  container.innerHTML = "";
-
-  TECHNIQUES.forEach((technique) => {
-    const card = document.createElement("article");
-    card.className = "technique-card";
-    card.innerHTML = `
-      <div>
-        <p class="tag">Improviso</p>
-        <h3>${technique.title}</h3>
-      </div>
-      <p>${technique.summary}</p>
-      <pre class="tab-box" aria-label="Tablatura de ${technique.title}">${technique.tab}</pre>
-      <p><strong>Como praticar:</strong> ${technique.practice}</p>
-    `;
-
-    const button = document.createElement("button");
-    button.className = "primary-button";
-    button.type = "button";
-    button.textContent = "Ouvir padrão";
-    button.addEventListener("click", () => {
-      const rhythm = technique.rhythm || technique.degrees?.map(() => 0.32) || technique.semitones.map(() => 0.32);
-      const items = (technique.semitones || technique.degrees).map((value, index) => ({
-        [technique.semitones ? "semitone" : "degree"]: value,
-        duration: getTempoSeconds(rhythm[index]),
-      }));
-      playSequence(items, { root: frequencyFromSemitone(getSelectedRoot(), 12), type: "square", volume: 0.13 });
-    });
-
-    card.append(button);
-    container.append(card);
-  });
 }
 
 function bindEvents() {
-  $("#audio-check").addEventListener("click", ensureAudio);
-  document.querySelectorAll("[data-scroll]").forEach((button) => {
-    button.addEventListener("click", () => {
-      document.querySelector(button.dataset.scroll).scrollIntoView({ behavior: "smooth" });
-    });
+  $("#run-command").addEventListener("click", runCommand);
+  $("#voice-toggle").addEventListener("click", toggleListening);
+  $("#speak-intro").addEventListener("click", () => {
+    speak("Olá, eu sou o Gideão AI. Posso ajudar com estudos, automação, pesquisa, memória e produtividade.");
+  });
+  $("#save-memory").addEventListener("click", () => {
+    saveMemory($("#memory-type").value, $("#memory-value").value, $("#memory-important").checked);
+    $("#memory-value").value = "";
+    setResponse("Memória salva com sucesso. Vou usar isso para personalizar sua experiência.", "Memória");
+  });
+  $("#study-minutes").addEventListener("input", (event) => {
+    $("#study-minutes-value").textContent = event.target.value;
+  });
+  $("#build-study-plan").addEventListener("click", buildStudyPlan);
+  $("#detect-fields").addEventListener("click", detectFields);
+  $("#autofill-form").addEventListener("submit", submitAutofill);
+  $("#analyze-screen").addEventListener("click", analyzeScreen);
+  $("#run-research").addEventListener("click", runResearch);
+
+  $$("[data-scroll]").forEach((button) => {
+    button.addEventListener("click", () => document.querySelector(button.dataset.scroll).scrollIntoView({ behavior: "smooth" }));
   });
 
-  $("#play-interval").addEventListener("click", newInterval);
-  $("#repeat-interval").addEventListener("click", playCurrentInterval);
-  $("#play-melody").addEventListener("click", newMelody);
-  $("#repeat-melody").addEventListener("click", () => playMelody());
-  $("#clear-melody").addEventListener("click", clearMelodyAnswer);
-  $("#check-melody").addEventListener("click", checkMelody);
-  $("#play-phrase").addEventListener("click", newPhrase);
-  $("#repeat-phrase").addEventListener("click", () => playPhrase());
-  $("#play-drone").addEventListener("click", playDrone);
-  $("#play-scale").addEventListener("click", playMajorScale);
-  $("#tempo-range").addEventListener("input", (event) => {
-    $("#tempo-value").textContent = event.target.value;
-  });
-  $("#key-select").addEventListener("change", () => {
-    if (activeDrone) {
-      activeDrone.oscillator.frequency.setValueAtTime(getSelectedRoot(), ensureAudio().currentTime);
-    }
+  $$(".quick-command-grid button").forEach((button) => {
+    button.addEventListener("click", () => {
+      $("#command-input").value = button.dataset.command;
+      runCommand();
+    });
   });
 }
 
 function init() {
-  renderIntervalOptions();
-  renderDegreePad();
-  renderPhraseOptions();
-  renderTechniqueCards();
+  loadMemories();
+  renderMemories();
+  renderAutomations();
+  buildStudyPlan();
+  runResearch();
+  setupSpeechRecognition();
   bindEvents();
-  updateScore("interval");
-  updateScore("melody");
-  updateScore("phrase");
 }
 
 document.addEventListener("DOMContentLoaded", init);
