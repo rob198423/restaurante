@@ -3,223 +3,330 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Ouvido Perfeito BR | Treino Auditivo e Guitarra</title>
+    <title>Gideão AI | Assistente pessoal inteligente</title>
     <meta
       name="description"
-      content="Aplicativo em português para treino auditivo, transcrição de melodias, fraseado musical e técnicas de guitarra com áudio."
+      content="Protótipo web do Gideão AI: assistente pessoal em português para voz, memória, estudos, automação segura, pesquisa e produtividade."
     />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <header class="hero">
       <nav class="topbar" aria-label="Navegação principal">
-        <a class="brand" href="#inicio">Ouvido Perfeito BR</a>
+        <a class="brand" href="#inicio">Gideão AI</a>
         <div class="nav-links">
-          <a href="#treino">Treino auditivo</a>
-          <a href="#tirar-musicas">Tirar músicas</a>
-          <a href="#guitarra">Guitarra</a>
-          <a href="#rotina">Rotina</a>
+          <a href="#comando">Comando de voz</a>
+          <a href="#memoria">Memória</a>
+          <a href="#estudos">Estudos</a>
+          <a href="#automacao">Automação</a>
+          <a href="#seguranca">Segurança</a>
         </div>
       </nav>
 
       <section id="inicio" class="hero-grid">
         <div class="hero-copy">
-          <p class="eyebrow">Aplicativo completo em português</p>
-          <h1>Treine o ouvido, tire melodias e leve fraseado real para a guitarra.</h1>
+          <p class="eyebrow">Assistente pessoal para Android e PC</p>
+          <h1>Gideão AI, seu parceiro inteligente estilo Jarvis.</h1>
           <p>
-            Exercícios com áudio gerado no navegador para reconhecer intervalos, cantar graus,
-            escrever melodias curtas, entender fraseado e estudar padrões como pedal point,
-            sequências e aproximações cromáticas.
+            Um protótipo em português do Brasil para comandos naturais, memória inteligente,
+            estudos para concursos, automação segura, pesquisa comparativa e visão de tela.
           </p>
           <div class="hero-actions">
-            <button class="primary-button" data-scroll="#treino">Começar treino</button>
-            <button class="ghost-button" id="audio-check">Ativar áudio</button>
+            <button class="primary-button" data-scroll="#comando">Testar comando</button>
+            <button class="ghost-button" id="speak-intro">Ouvir apresentação</button>
           </div>
-          <p class="audio-status" id="audio-status" role="status">
-            Toque em qualquer botão de áudio para iniciar o sintetizador.
+          <p class="status-text" id="voice-status" role="status">
+            Voz pronta. No navegador, a escuta depende da permissão do microfone.
           </p>
         </div>
 
-        <div class="studio-card" aria-label="Painel de estudo">
-          <div class="pulse-ring">
-            <span>440 Hz</span>
-          </div>
+        <aside class="assistant-card" aria-label="Painel do Gideão AI">
+          <div class="orb" aria-hidden="true"><span></span></div>
           <div>
-            <h2>Modo de estudo</h2>
-            <p>Ouça, cante, toque, confira e repita em ciclos curtos.</p>
+            <p class="tag">Online</p>
+            <h2>Modo proativo ativado</h2>
+            <p>
+              Organizo sua rotina, estudo com você, lembro preferências importantes e peço
+              confirmação antes de ações sensíveis.
+            </p>
           </div>
-          <ul>
-            <li>Centro tonal com drone</li>
-            <li>Ditado por graus da escala</li>
-            <li>Frases para improviso</li>
-            <li>Técnicas aplicadas na guitarra</li>
-          </ul>
-        </div>
+          <div class="signal-grid" aria-label="Capacidades ativas">
+            <span>Voz BR</span>
+            <span>Memória</span>
+            <span>Concursos</span>
+            <span>Android</span>
+            <span>PC</span>
+            <span>Segurança</span>
+          </div>
+        </aside>
       </section>
     </header>
 
     <main>
-      <section class="section" id="treino">
+      <section class="section command-section" id="comando">
         <div class="section-heading">
-          <p class="eyebrow">Treino auditivo</p>
-          <h2>Exercícios iguais a um professor particular de ouvido</h2>
+          <p class="eyebrow">Comando de voz e texto</p>
+          <h2>Fale de forma natural: o Gideão entende intenção, contexto e prioridade.</h2>
           <p>
-            Cada módulo toca exemplos diferentes a cada rodada. Responda em português, confira o
-            resultado e use as dicas para corrigir a escuta.
+            Digite ou dite comandos como "monte um cronograma para concurso", "lembre que gosto
+            de MPB" ou "pesquise apps gratuitos para produtividade".
           </p>
         </div>
 
-        <div class="practice-grid">
-          <article class="practice-card" id="interval-card">
-            <div class="card-title-row">
-              <div>
-                <p class="tag">Reconhecimento</p>
-                <h3>Intervalos melódicos</h3>
-              </div>
-              <span class="score-pill" id="interval-score">0/0</span>
-            </div>
-            <p>Ouça duas notas e identifique a distância. Comece cantando a primeira nota antes de responder.</p>
+        <div class="console-grid">
+          <article class="console-card">
+            <label for="command-input">Comando para o Gideão</label>
+            <textarea
+              id="command-input"
+              rows="4"
+              placeholder="Ex: Gideão, crie um plano de estudos de 40 minutos para matemática básica."
+            ></textarea>
             <div class="button-row">
-              <button class="primary-button" id="play-interval">Tocar intervalo</button>
-              <button class="ghost-button" id="repeat-interval">Repetir</button>
+              <button class="primary-button" id="run-command">Executar comando</button>
+              <button class="ghost-button" id="voice-toggle">Ativar escuta</button>
             </div>
-            <div class="option-grid" id="interval-options" aria-label="Opções de intervalo"></div>
-            <p class="feedback" id="interval-feedback" role="status">Clique em tocar intervalo.</p>
+            <div class="quick-command-grid" aria-label="Comandos rápidos">
+              <button type="button" data-command="Lembre que gosto de estudar à noite e prefiro explicações objetivas.">
+                Salvar preferência
+              </button>
+              <button type="button" data-command="Monte um cronograma de estudos para concurso nível iniciante.">
+                Plano de estudos
+              </button>
+              <button type="button" data-command="Pesquise ferramentas gratuitas para organizar arquivos no PC.">
+                Modo pesquisa
+              </button>
+              <button type="button" data-command="Preciso preencher um cadastro com nome, email e CPF.">
+                Autofill seguro
+              </button>
+            </div>
           </article>
 
-          <article class="practice-card" id="melody-card">
+          <article class="response-card" aria-live="polite">
             <div class="card-title-row">
               <div>
-                <p class="tag">Transcrição</p>
-                <h3>Ditado melódico por graus</h3>
+                <p class="tag">Resposta natural</p>
+                <h3>Gideão responde</h3>
               </div>
-              <span class="score-pill" id="melody-score">0/0</span>
+              <span class="pill" id="intent-pill">Aguardando</span>
             </div>
-            <p>Escute uma melodia curta em dó maior e monte a resposta com graus da escala.</p>
-            <div class="button-row">
-              <button class="primary-button" id="play-melody">Nova melodia</button>
-              <button class="ghost-button" id="repeat-melody">Repetir</button>
-            </div>
-            <div class="degree-pad" id="degree-pad" aria-label="Graus da escala"></div>
-            <div class="answer-box">
-              <span>Resposta:</span>
-              <strong id="melody-answer">vazia</strong>
-            </div>
-            <div class="button-row">
-              <button class="ghost-button" id="clear-melody">Limpar</button>
-              <button class="primary-button" id="check-melody">Conferir</button>
-            </div>
-            <p class="feedback" id="melody-feedback" role="status">Clique em nova melodia.</p>
-          </article>
-
-          <article class="practice-card" id="phrase-card">
-            <div class="card-title-row">
-              <div>
-                <p class="tag">Fraseado</p>
-                <h3>Reconheça a intenção da frase</h3>
-              </div>
-              <span class="score-pill" id="phrase-score">0/0</span>
-            </div>
-            <p>Ouça uma frase e escolha a ideia musical: pergunta-resposta, sequência, pedal point ou aproximação.</p>
-            <div class="button-row">
-              <button class="primary-button" id="play-phrase">Tocar frase</button>
-              <button class="ghost-button" id="repeat-phrase">Repetir</button>
-            </div>
-            <div class="option-grid" id="phrase-options" aria-label="Opções de fraseado"></div>
-            <p class="feedback" id="phrase-feedback" role="status">Clique em tocar frase.</p>
+            <p id="assistant-response">
+              Pronto para ajudar. Mande um comando e eu respondo em português do Brasil.
+            </p>
+            <div class="conversation-log" id="conversation-log" aria-label="Histórico de comandos"></div>
           </article>
         </div>
       </section>
 
-      <section class="section split-section" id="tirar-musicas">
+      <section class="section split-section" id="memoria">
         <div class="section-heading compact">
-          <p class="eyebrow">Tirar músicas</p>
-          <h2>Fluxo guiado para tirar melodias e fraseados</h2>
+          <p class="eyebrow">Memória inteligente</p>
+          <h2>Preferências persistentes no dispositivo.</h2>
           <p>
-            Use o painel como um roteiro: ache o centro tonal, cante graus, divida a frase e toque
-            no instrumento antes de escrever.
+            O protótipo guarda gostos e rotina no navegador com `localStorage`. Memórias marcadas
+            como importantes só são removidas depois de confirmação.
           </p>
         </div>
 
-        <div class="transcription-panel">
-          <div class="control-card">
-            <h3>Laboratório tonal</h3>
-            <label for="key-select">Centro tonal</label>
-            <select id="key-select">
-              <option value="261.63">Dó</option>
-              <option value="293.66">Ré</option>
-              <option value="329.63">Mi</option>
-              <option value="349.23">Fá</option>
-              <option value="392">Sol</option>
-              <option value="440">Lá</option>
+        <div class="memory-panel">
+          <article class="control-card">
+            <h3>Adicionar memória</h3>
+            <label for="memory-type">Categoria</label>
+            <select id="memory-type">
+              <option value="estudos">Estudos</option>
+              <option value="musicas">Músicas</option>
+              <option value="rotina">Rotina</option>
+              <option value="aplicativos">Aplicativos favoritos</option>
+              <option value="preferencias">Preferências pessoais</option>
             </select>
-            <label for="tempo-range">Andamento: <span id="tempo-value">92</span> bpm</label>
-            <input id="tempo-range" type="range" min="60" max="140" value="92" />
-            <div class="button-row">
-              <button class="primary-button" id="play-drone">Tocar drone</button>
-              <button class="ghost-button" id="play-scale">Escala maior</button>
-            </div>
-            <p class="small-note">Dica: cante 1-2-3-5-3-2-1 antes de tentar copiar uma música real.</p>
-          </div>
+            <label for="memory-value">Informação</label>
+            <input id="memory-value" type="text" placeholder="Ex: estudo melhor depois das 20h" />
+            <label class="check-row">
+              <input id="memory-important" type="checkbox" checked />
+              Importante: pedir confirmação antes de apagar
+            </label>
+            <button class="primary-button" id="save-memory">Salvar memória</button>
+          </article>
 
-          <div class="steps-card">
-            <h3>Método em 6 passos</h3>
-            <ol class="steps-list">
-              <li><strong>Ouça sem tocar.</strong> Marque o pulso com o pé e perceba onde a frase respira.</li>
-              <li><strong>Encontre o repouso.</strong> Cante a nota que parece casa: ela vira o grau 1.</li>
-              <li><strong>Mapeie o contorno.</strong> Escreva se a melodia sobe, desce ou repete notas.</li>
-              <li><strong>Quebre em células.</strong> Trabalhe trechos de 2 a 4 notas, nunca a música inteira.</li>
-              <li><strong>Compare com graus.</strong> Toque a escala e descubra 1, 2, 3, 4, 5, 6 ou 7.</li>
-              <li><strong>Leve para a guitarra.</strong> Toque em duas regiões do braço e crie uma variação.</li>
-            </ol>
-          </div>
+          <article class="memory-card">
+            <div class="card-title-row">
+              <div>
+                <p class="tag">Aprendizado local</p>
+                <h3>O que o Gideão sabe sobre você</h3>
+              </div>
+              <span class="pill" id="memory-count">0 memórias</span>
+            </div>
+            <div class="memory-list" id="memory-list"></div>
+          </article>
         </div>
       </section>
 
-      <section class="section" id="guitarra">
+      <section class="section" id="estudos">
         <div class="section-heading">
-          <p class="eyebrow">Técnicas de guitarra</p>
-          <h2>Padrões para adicionar no improviso</h2>
+          <p class="eyebrow">Estudos e concursos</p>
+          <h2>Cronogramas, resumos e simulados adaptados ao seu nível.</h2>
           <p>
-            Aprenda o conceito, ouça o padrão e pratique com palhetada alternada, ligados ou slides.
+            Escolha matéria, nível e tempo disponível. O Gideão monta uma sequência objetiva para
+            aprender, revisar, praticar e evoluir com consistência.
           </p>
         </div>
 
-        <div class="technique-grid" id="technique-grid"></div>
+        <div class="study-grid">
+          <article class="control-card">
+            <h3>Gerador de plano</h3>
+            <label for="study-topic">Matéria ou objetivo</label>
+            <input id="study-topic" type="text" value="Matemática básica para concurso" />
+            <label for="study-level">Nível atual</label>
+            <select id="study-level">
+              <option>Iniciante</option>
+              <option>Intermediário</option>
+              <option>Avançado</option>
+            </select>
+            <label for="study-minutes">Tempo hoje: <span id="study-minutes-value">40</span> min</label>
+            <input id="study-minutes" type="range" min="20" max="120" step="10" value="40" />
+            <button class="primary-button" id="build-study-plan">Montar cronograma</button>
+          </article>
+
+          <article class="plan-card">
+            <div class="card-title-row">
+              <div>
+                <p class="tag">Roteiro inteligente</p>
+                <h3>Plano de hoje</h3>
+              </div>
+              <span class="pill">Adaptável</span>
+            </div>
+            <ol class="plan-list" id="study-plan"></ol>
+          </article>
+        </div>
       </section>
 
-      <section class="section routine-section" id="rotina">
-        <div class="routine-card">
-          <p class="eyebrow">Rotina sugerida</p>
-          <h2>Treino diário de 20 minutos</h2>
-          <div class="routine-grid">
+      <section class="section" id="automacao">
+        <div class="section-heading">
+          <p class="eyebrow">Automação, autofill e visão de tela</p>
+          <h2>Ações rápidas com confirmação para dados sensíveis.</h2>
+          <p>
+            A versão web simula tarefas que no APK usariam acessibilidade Android, notificações,
+            background service e leitura da tela.
+          </p>
+        </div>
+
+        <div class="automation-grid">
+          <article class="automation-card">
+            <p class="tag">Tarefas repetitivas</p>
+            <h3>Automação segura</h3>
+            <div class="automation-actions" id="automation-actions"></div>
+            <p class="feedback" id="automation-feedback">Escolha uma automação para simular.</p>
+          </article>
+
+          <article class="automation-card">
+            <p class="tag">Preenchimento automático</p>
+            <h3>Cadastro de exemplo</h3>
+            <form id="autofill-form">
+              <label>
+                Nome
+                <input name="name" autocomplete="name" placeholder="Nome completo" />
+              </label>
+              <label>
+                Email
+                <input name="email" autocomplete="email" placeholder="email@exemplo.com" />
+              </label>
+              <label>
+                Telefone
+                <input name="phone" autocomplete="tel" placeholder="(00) 00000-0000" />
+              </label>
+              <label>
+                CPF
+                <input name="cpf" inputmode="numeric" placeholder="000.000.000-00" />
+              </label>
+              <label>
+                Endereço
+                <input name="address" autocomplete="street-address" placeholder="Rua, número, cidade" />
+              </label>
+              <div class="button-row">
+                <button class="ghost-button" type="button" id="detect-fields">Detectar campos</button>
+                <button class="primary-button" type="submit">Enviar cadastro</button>
+              </div>
+            </form>
+            <p class="feedback" id="autofill-feedback">CPF e envio exigem confirmação.</p>
+          </article>
+
+          <article class="automation-card">
+            <p class="tag">Visão de tela</p>
+            <h3>Analisador visual</h3>
+            <div class="phone-screen" aria-label="Tela simulada do celular">
+              <div class="phone-status">09:41 • Wi-Fi • 82%</div>
+              <button>Entrar</button>
+              <button>Continuar com Google</button>
+              <label>CPF<input placeholder="Digite seu CPF" /></label>
+            </div>
+            <button class="primary-button" id="analyze-screen">Analisar tela</button>
+            <ul class="screen-findings" id="screen-findings"></ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="section research-section" id="seguranca">
+        <div class="research-card">
+          <div class="section-heading compact">
+            <p class="eyebrow">Pesquisa, IA e segurança</p>
+            <h2>Primeiro gratuito, depois custo-benefício, sempre com limites claros.</h2>
+            <p>
+              O Gideão prioriza Gemini Flash, DeepSeek, OpenRouter e OpenAI. Ele compara opções,
+              explica prós e contras e bloqueia operações sensíveis sem confirmação explícita.
+            </p>
+          </div>
+
+          <div class="research-layout">
+            <article class="control-card">
+              <h3>Modo pesquisa</h3>
+              <label for="research-topic">O que comparar?</label>
+              <input id="research-topic" type="text" value="apps gratuitos para organizar estudos" />
+              <button class="primary-button" id="run-research">Comparar opções</button>
+              <div class="api-stack">
+                <span>1. Gemini Flash</span>
+                <span>2. DeepSeek</span>
+                <span>3. OpenRouter</span>
+                <span>4. OpenAI</span>
+              </div>
+            </article>
+
+            <article class="comparison-card">
+              <h3>Resultado comparativo</h3>
+              <div id="research-results"></div>
+            </article>
+          </div>
+
+          <div class="security-grid">
             <div>
-              <span>05 min</span>
-              <h3>Centro tonal</h3>
-              <p>Drone, escala maior e canto dos graus 1, 3, 5 e 7.</p>
+              <strong>Bloqueio obrigatório</strong>
+              <p>Transferências, compras, exclusão de arquivos importantes e envio de senhas.</p>
             </div>
             <div>
-              <span>05 min</span>
-              <h3>Intervalos</h3>
-              <p>Faça 10 rodadas e cante a resposta antes de clicar.</p>
+              <strong>Compatibilidade APK</strong>
+              <p>Flutter, Android, voz, acessibilidade, notificações e execução em background.</p>
             </div>
             <div>
-              <span>05 min</span>
-              <h3>Ditado</h3>
-              <p>Transcreva melodias curtas por graus e toque na guitarra.</p>
-            </div>
-            <div>
-              <span>05 min</span>
-              <h3>Improviso</h3>
-              <p>Escolha uma técnica e crie duas frases próprias.</p>
+              <strong>Modo evolução</strong>
+              <p>Aprende padrões úteis e melhora respostas sem apagar memória relevante sem pedir.</p>
             </div>
           </div>
         </div>
       </section>
     </main>
 
+    <dialog id="confirm-dialog">
+      <form method="dialog">
+        <p class="tag">Confirmação de segurança</p>
+        <h3 id="confirm-title">Confirmar ação?</h3>
+        <p id="confirm-message"></p>
+        <div class="button-row">
+          <button class="ghost-button" value="cancel">Cancelar</button>
+          <button class="primary-button" value="confirm">Confirmar explicitamente</button>
+        </div>
+      </form>
+    </dialog>
+
     <footer>
-      <p>Feito para estudar ouvido, fraseado e guitarra em português.</p>
+      <p>Gideão AI: útil, rápido, organizado, proativo e seguro.</p>
     </footer>
 
     <script src="app.js" defer></script>
